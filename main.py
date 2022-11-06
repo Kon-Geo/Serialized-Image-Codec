@@ -15,22 +15,35 @@ class CSIC():
         img = imread(input_file)
         rows, cols, _ = img.shape
         frequencies = {}
-        buffer = ""
+        buffer_lines = []
         for i in range(rows):
+            buffer_lines.append("")
             for j in range(cols):
                 if verbose: print(f"X{i} Y{j}", end="\r")
                 pixel = img[i, j]
                 hex_value = ('%02x%02x%02x' % (pixel[0], pixel[1], pixel[2])).upper()
-                buffer += hex_value + ","
+                buffer_lines[i] += hex_value + ","
                 frequencies[hex_value] = frequencies.get(hex_value, 0) + 1
-            buffer = buffer[:-1] + "\n"
-        buffer = buffer[:-1]
+            buffer_lines[i] = buffer_lines[i][:-1]
         most_frequent = [[chr(91 + i), j[0]] for i, j in enumerate([k for k in sorted(frequencies.items(), key=lambda item: item[1], reverse=True)][0:35])]
+        for i, line in enumerate(buffer_lines):
+            count = 1
+            occurrences = []
+            if len(line) > 1:
+                splitted = line.split(",")
+                for j, text in enumerate(splitted):
+                    if j + 1 != len(splitted) and text == splitted[j+1]:
+                        count += 1
+                    else:
+                        occurrences.append([text, str(count)])
+                        count = 1
+            else:
+                occurrences.append([line, "1"])
+            buffer_lines[i] = ",".join(map(lambda l: l[0] if l[1] == "1" else "*".join(l), occurrences))
+        buffer = "\n".join(buffer_lines)
+        for l, v in most_frequent: buffer = buffer.replace(v, l)
         with open(output_file, "w+") as wf:
-            wf.write(",".join([f"{i}:{j}" for i, j in most_frequent]))
-            wf.write("\n")
-            for l, v in most_frequent: buffer = buffer.replace(v, l)
-            wf.write(buffer)
+            wf.write(",".join([f"{i}:{j}" for i, j in most_frequent]) + "\n" + buffer)
 
     def decode(self, input_file, output_file):
         with open(input_file, "r") as rf:
@@ -43,9 +56,16 @@ class CSIC():
                     temp = temp.replace(k, v)
                 data += temp
             data = data.split("\n")
-            height = len(data)
-            width = len(data[0].split(","))
-        new_image = zeros((height, width, 3), uint8)
+            for i, line in enumerate(data):
+                decoded_pixels = []
+                for pixel in line.split(","):
+                    if "*" not in pixel:
+                        decoded_pixels.append(pixel)
+                    else:
+                        value, factor = pixel.split("*")
+                        decoded_pixels.append(",".join([value] * int(factor)))
+                data[i] = ",".join(decoded_pixels)
+        new_image = zeros((len(data), len(data[0].split(",")), 3), uint8)
         for i, line in enumerate(data):
             for j, y in enumerate(line.split(",")):
                 new_image[i][j] = tuple(int(y[i:i+2], 16) for i in (0, 2, 4))
