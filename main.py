@@ -40,7 +40,7 @@ class CSIC():
         for i, line in enumerate(buffer_lines):
             count = 1
             occurrences = []
-            # Find concurent repeating pixel values
+            # Find consecutive repeating pixel values
             if len(line) > 1:
                 splitted = line.split(",")
                 for j, text in enumerate(splitted):
@@ -51,7 +51,7 @@ class CSIC():
                         count = 1
             else:
                 occurrences.append([line, "1"])
-            # Merge the concurent repeating pixel values by writing them as 'value*times_found'
+            # Merge the consecutive repeating pixel values by writing them as 'value*times_found'
             buffer_lines[i] = ",".join(map(lambda l: l[0] if l[1] == "1" else "*".join(l), occurrences))
         # Join the lines of the buffer into a single 'buffer' string
         buffer = "\n".join(buffer_lines)
@@ -77,7 +77,7 @@ class CSIC():
                 data += temp
             # Split data back into lines
             data = data.split("\n")
-            # Iterate the rows again and decode the short written concurent repeating pixel values
+            # Iterate the rows again and decode the short written consecutive repeating pixel values
             for i, line in enumerate(data):
                 decoded_pixels = []
                 for pixel in line.split(","):
