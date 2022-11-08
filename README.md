@@ -22,6 +22,6 @@ main.py [-h] [-i INPUT FILENAME/PATH] [-o OUTPUT FILENAME/PATH] [-e] [-d] [-r WI
 -e, --encode    Use encode mode.
 -d, --decode    Use decode mode.
 -r WIDTHxHEIGHT, --random WIDTHxHEIGHT    Generate random PNG image.
--c {csic,sic}, --converter {csic,sic}    The converter you want to use. (csic: Use compression)
+-c {0,1}, --complevel {0,1}    The compression level you want to use (0=No Compression)
 -v, --verbose    Print useful information to the console.
 ```
